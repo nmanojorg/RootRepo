@@ -19,42 +19,46 @@ jobs:
     if: ${{ inputs.runJob1 }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running Job 1"
+      - run: echo "? Running Job 1"
 
   job2:
     name: Always Run Job 2
     needs: [job1]
-    if: ${{ inputs.runJob1 && success() || !inputs.runJob1 }}
+    # Waits for job1 if runJob1 is true; else runs immediately
+    if: >-
+      ${{
+        (inputs.runJob1 && needs.job1.result == 'success') ||
+        (!inputs.runJob1)
+      }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running Job 2"
+      - run: echo "? Running Job 2"
 
   job3:
-    if: ${{ inputs.runJob3 && needs.job2.result == 'success' }}
+    name: Conditional Job 3
     needs: [job2]
+    if: ${{ inputs.runJob3 && needs.job2.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running Job 3"
+      - run: echo "? Running Job 3"
 
   job4:
-    if: ${{ inputs.runJob4 && needs.job2.result == 'success' }}
+    name: Conditional Job 4
     needs: [job2]
+    if: ${{ inputs.runJob4 && needs.job2.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running Job 4"
+      - run: echo "? Running Job 4"
 
   job5:
-    name: Final Job (Only if all dependencies succeeded)
+    name: Final Job (Runs Only if All Required Jobs Succeed)
+    needs: [job2, job3, job4]
     if: >-
       ${{
         needs.job2.result == 'success' &&
         (!inputs.runJob3 || needs.job3.result == 'success') &&
         (!inputs.runJob4 || needs.job4.result == 'success')
       }}
-    needs:
-      - job2
-      - job3
-      - job4
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running Job 5"
+      - run: echo "?? Running Final Job 5"
