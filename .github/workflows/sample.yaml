@@ -14,52 +14,12 @@ on:
         type: boolean
         required: true
 
-jobs:
   job1:
-    if: inputs.runJob1
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Running Job 1"
-
-  job2:
     name: Always Run Job 2
-    needs: [job1]
-    if:  always() && (needs.job1.result == 'success' || needs.job1.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - run: | 
              echo "Running Job 2"
-             echo 'fgg ${{ vars.REPO_VAR }}'
-             echo 'bhh ${{ secrets.TEST }}'
+             echo "$GITHUB_WORKFLOW_REF"
 
-  job3:
-    if: always() && inputs.runJob3 && (needs.job2.result == 'success' )
-    needs: [job2]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Running Job 3"
-
-  job4:
-    if: always() && inputs.runJob4 && (needs.job2.result == 'success' )
-    needs: [job2]
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-              echo "Running Job 4"
-              sleep 5s
-
-  job5:
-    name: Final Job (Only if all dependencies succeeded)
-    if: always() && (needs.job2.result == 'success' ) && (needs.job3.result == 'success' || needs.job3.result == 'skipped' ) && (needs.job4.result == 'success' || needs.job4.result == 'skipped' )
-    needs: [job2, job3, job4]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Running Job 5" && sleep 10s && exit 1
-
-  clean:
-    name: Clean
-    if: always() && (needs.job2.result == 'success' )
-    needs: [job2, job5]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Clean"
+  
