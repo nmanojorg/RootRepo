@@ -19,7 +19,7 @@ jobs:
     if: inputs.runJob1
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running Job 1"
+      - run: echo "Running Job 1" && exit 1
 
   job2:
     name: Always Run Job 2
