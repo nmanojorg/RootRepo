@@ -20,6 +20,6 @@ jobs:
     steps:
       - run: | 
              echo "Running Job 2"
-             echo "$GITHUB_WORKFLOW_REF"
+             echo "$REPO_NAME"
 
   
