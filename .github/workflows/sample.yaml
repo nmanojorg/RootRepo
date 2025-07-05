@@ -46,6 +46,7 @@ jobs:
       - run: |
               echo "Running Job 4"
               sleep 15s
+              exit 1
 
   job5:
     name: Final Job (Only if all dependencies succeeded)
