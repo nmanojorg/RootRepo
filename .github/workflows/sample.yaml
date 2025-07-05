@@ -29,7 +29,7 @@ jobs:
     steps:
       - run: | 
              echo "Running Job 2"
-             sleep 10s
+             sleep 5s
 
   job3:
     if: always() && inputs.runJob3 && (needs.job2.result == 'success' )
@@ -45,7 +45,7 @@ jobs:
     steps:
       - run: |
               echo "Running Job 4"
-              sleep 10s
+              sleep 5s
 
   job5:
     name: Final Job (Only if all dependencies succeeded)
@@ -53,7 +53,7 @@ jobs:
     needs: [job2, job3, job4]
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running Job 5"
+      - run: echo "Running Job 5" && sleep 10s
 
   clean:
     name: Clean
