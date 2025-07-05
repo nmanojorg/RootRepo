@@ -1,28 +1,60 @@
-name: Simple Workflow on Push and Call
+name: Conditional Job Workflow
 
 on:
-  push:       # Triggers on any push
-  workflow_call:  # Allows this workflow to be called from another repo/workflow
+  push:
+  workflow_call:
+    inputs:
+      runJob1:
+        type: boolean
+        required: true
+      runJob3:
+        type: boolean
+        required: true
+      runJob4:
+        type: boolean
+        required: true
 
 jobs:
-  print-info:
+  job1:
+    if: ${{ inputs.runJob1 }}
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          repository: 'nmanojorg/RootRepo'
+      - run: echo "Running Job 1"
 
-      - name: Debug
-        run: ls -ltr
+  job2:
+    name: Always Run Job 2
+    needs: [job1]
+    if: ${{ inputs.runJob1 && success() || !inputs.runJob1 }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running Job 2"
 
-      - name: Print GitHub context info
-        run: |
-          echo "Triggered by repo        : $GITHUB_REPOSITORY"
-          echo "Commit SHA               : $GITHUB_SHA"
-          echo "Git ref (full)           : $GITHUB_REF"
-          echo "Branch (short)           : $GITHUB_REF_NAME"
-          echo "Workflow ref             : $GITHUB_WORKFLOW_REF"
-          echo "Workflow repo (caller)   : $GITHUB_ACTION_REPOSITORY"
-          echo "Workspace                : $GITHUB_WORKSPACE"
+  job3:
+    if: ${{ inputs.runJob3 && needs.job2.result == 'success' }}
+    needs: [job2]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running Job 3"
+
+  job4:
+    if: ${{ inputs.runJob4 && needs.job2.result == 'success' }}
+    needs: [job2]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running Job 4"
+
+  job5:
+    name: Final Job (Only if all dependencies succeeded)
+    if: >-
+      ${{
+        needs.job2.result == 'success' &&
+        (!inputs.runJob3 || needs.job3.result == 'success') &&
+        (!inputs.runJob4 || needs.job4.result == 'success')
+      }}
+    needs:
+      - job2
+      - job3
+      - job4
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running Job 5"
