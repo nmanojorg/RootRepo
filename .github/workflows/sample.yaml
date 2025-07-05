@@ -29,7 +29,8 @@ jobs:
     steps:
       - run: | 
              echo "Running Job 2"
-             sleep 5s
+             echo '${{ vars.REPO_VAR }}'
+             echo '${{ secrets.TEST }}'
 
   job3:
     if: always() && inputs.runJob3 && (needs.job2.result == 'success' )
