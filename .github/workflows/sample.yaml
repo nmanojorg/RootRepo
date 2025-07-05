@@ -1,22 +1,9 @@
 name: Conditional Job Workflow
 
-on:
-  push:
-  workflow_call:
-    inputs:
-      runJob1:
-        type: boolean
-        required: true
-      runJob3:
-        type: boolean
-        required: true
-      runJob4:
-        type: boolean
-        required: true
 
 jobs:
   job1:
-    if: ${{ inputs.runJob1 }}
+    if: false
     runs-on: ubuntu-latest
     steps:
       - run: echo "? Running Job 1"
@@ -31,27 +18,7 @@ jobs:
 
   job3:
     name: Conditional Job 3
-    if: ${{ inputs.runJob3 }}
     needs: [job2]
     runs-on: ubuntu-latest
-    outputs:
-      status: success
     steps:
       - run: echo "? Running Job 3"
-
-  job4:
-    name: Conditional Job 4
-    if: ${{ inputs.runJob4 }}
-    needs: [job2]
-    runs-on: ubuntu-latest
-    outputs:
-      status: success
-    steps:
-      - run: echo "? Running Job 4"
-
-  job5:
-    name: Final Job (Runs Only if Conditions Pass)
-    needs: [job2, job3, job4]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "?? Running Final Job 5"
