@@ -1,0 +1,28 @@
+name: Simple Workflow on Push and Call
+
+on:
+  push:       # Triggers on any push
+  workflow_call:  # Allows this workflow to be called from another repo/workflow
+
+jobs:
+  print-info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: 'nmanojorg/RootRepo'
+
+      - name: Debug
+        run: ls -ltr
+
+      - name: Print GitHub context info
+        run: |
+          echo "Triggered by repo        : $GITHUB_REPOSITORY"
+          echo "Commit SHA               : $GITHUB_SHA"
+          echo "Git ref (full)           : $GITHUB_REF"
+          echo "Branch (short)           : $GITHUB_REF_NAME"
+          echo "Workflow ref             : $GITHUB_WORKFLOW_REF"
+          echo "Workflow repo (caller)   : $GITHUB_ACTION_REPOSITORY"
+          echo "Workspace                : $GITHUB_WORKSPACE"
