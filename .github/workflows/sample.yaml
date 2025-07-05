@@ -24,12 +24,12 @@ jobs:
   job2:
     name: Always Run Job 2
     needs: [job1]
-    if: always() && ( needs.job1.result == 'success')
+    if: always()
     runs-on: ubuntu-latest
     outputs:
       status: success
     steps:
-      - run: echo "? Running Job 2"
+      - run: "echo ${{ needs }}"
 
   job3:
     name: Conditional Job 3
