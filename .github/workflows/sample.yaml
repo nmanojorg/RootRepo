@@ -24,41 +24,73 @@ jobs:
   job2:
     name: Always Run Job 2
     needs: [job1]
-    # Waits for job1 if runJob1 is true; else runs immediately
-    if: >-
-      ${{
-        (inputs.runJob1 && needs.job1.result == 'success') ||
-        (!inputs.runJob1)
-      }}
+    if: ${{ inputs.runJob1 == false || needs.job1.result == 'success' }}
     runs-on: ubuntu-latest
+    outputs:
+      status: success
     steps:
       - run: echo "? Running Job 2"
 
   job3:
     name: Conditional Job 3
+    if: ${{ inputs.runJob3 }}
     needs: [job2]
-    if: ${{ inputs.runJob3 && needs.job2.result == 'success' }}
     runs-on: ubuntu-latest
+    outputs:
+      status: success
     steps:
       - run: echo "? Running Job 3"
 
   job4:
     name: Conditional Job 4
+    if: ${{ inputs.runJob4 }}
     needs: [job2]
-    if: ${{ inputs.runJob4 && needs.job2.result == 'success' }}
     runs-on: ubuntu-latest
+    outputs:
+      status: success
     steps:
       - run: echo "? Running Job 4"
 
-  job5:
-    name: Final Job (Runs Only if All Required Jobs Succeed)
+  job5_guard:
+    name: Evaluate Conditions for Final Job
     needs: [job2, job3, job4]
-    if: >-
-      ${{
-        needs.job2.result == 'success' &&
-        (!inputs.runJob3 || (contains(needs, 'job3') && needs.job3.result == 'success')) &&
-        (!inputs.runJob4 || (contains(needs, 'job4') && needs.job4.result == 'success'))
-      }}
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          echo "Evaluating job statuses..."
+          runJob3=${{ inputs.runJob3 }}
+          runJob4=${{ inputs.runJob4 }}
+
+          job2_result="${{ needs.job2.result }}"
+          job3_result="${{ needs.job3.result || 'skipped' }}"
+          job4_result="${{ needs.job4.result || 'skipped' }}"
+
+          echo "Job2: $job2_result, Job3: $job3_result, Job4: $job4_result"
+
+          if [[ "$job2_result" != "success" ]]; then
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [[ "$runJob3" == "true" && "$job3_result" != "success" ]]; then
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [[ "$runJob4" == "true" && "$job4_result" != "success" ]]; then
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "should_run=true" >> $GITHUB_OUTPUT
+
+  job5:
+    name: Final Job (Runs Only if Conditions Pass)
+    needs: [job5_guard]
+    if: ${{ needs.job5_guard.outputs.should_run == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - run: echo "?? Running Final Job 5"
