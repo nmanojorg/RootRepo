@@ -24,7 +24,7 @@ jobs:
   job2:
     name: Always Run Job 2
     needs: [job1]
-    if: always()
+    if: success()
     runs-on: ubuntu-latest
     outputs:
       status: success
