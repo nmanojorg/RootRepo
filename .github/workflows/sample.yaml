@@ -1,5 +1,7 @@
 name: Conditional Job Workflow
 
+on:
+  push:
 
 jobs:
   job1:
