@@ -16,7 +16,7 @@ jobs:
     if: always() && (needs.job1.result == 'success' || needs.job1.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
-      - run: echo '${{ toJSON(needs) }}'
+      - run: exit 1
 
   job3:
     name: Conditional Job 3
