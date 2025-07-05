@@ -29,8 +29,8 @@ jobs:
     steps:
       - run: | 
              echo "Running Job 2"
-             echo '${{ vars.REPO_VAR }}'
-             echo '${{ secrets.TEST }}'
+             echo 'fgg ${{ vars.REPO_VAR }}'
+             echo 'bhh ${{ secrets.TEST }}'
 
   job3:
     if: always() && inputs.runJob3 && (needs.job2.result == 'success' )
