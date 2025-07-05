@@ -24,10 +24,8 @@ jobs:
   job2:
     name: Always Run Job 2
     needs: [job1]
-    if: success()
+    if: always() && (needs.job1.result == 'success' || needs.job1.result == 'skipped')
     runs-on: ubuntu-latest
-    outputs:
-      status: success
     steps:
       - run: echo '${{ toJSON(needs) }}'
 
