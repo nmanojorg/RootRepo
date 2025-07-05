@@ -29,7 +29,7 @@ jobs:
     steps:
       - run: | 
              echo "Running Job 2"
-             sleep 1m
+             sleep 20s
 
   job3:
     if: always() && inputs.runJob3 && (needs.job2.result == 'success' )
@@ -45,7 +45,7 @@ jobs:
     steps:
       - run: |
               echo "Running Job 4"
-              sleep 30s
+              sleep 15s
 
   job5:
     name: Final Job (Only if all dependencies succeeded)
