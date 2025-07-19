@@ -83,4 +83,5 @@ runs:
          path: shared-library
 
     - name: Import Container property file
+      shell: bash
       run: ls -ltr
