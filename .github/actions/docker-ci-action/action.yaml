@@ -82,6 +82,62 @@ runs:
          ref: 'main'
          path: shared-library
 
-    - name: Import Container property file
-      shell: bash
-      run: ls -ltr
+    - name: Validate Inputs
+      uses: ./.github/actions/validate-inputs
+      with:
+        actionInputs: >-
+          gitUserName=${{ inputs.gitUserName }},
+          aproUserName=${{ inputs.aproUserName }},
+          imageUrls="${{ inputs.imageUrls }}",
+          ignoredSeverities="${{ inputs.ignoredSeverities }}",
+          hadolintConfigPath=${{ inputs.hadolintConfigPath }},
+          dockerfilePath=${{ inputs.dockerfilePath }},
+          dockerfileTestPath=${{ inputs.dockerfileTestPath }},
+          buildPlatform=${{ inputs.buildPlatform }},
+          buildArgsFilePath=${{ inputs.buildArgsFilePath }},
+          kanikoVerbosity=${{ inputs.kanikoVerbosity }},
+          createDotNetRC=${{ inputs.createDotNetRC }},
+          runLint=${{ inputs.runLint }},
+          runGossTests=${{ inputs.runGossTests }},
+          runXrayScan=${{ inputs.runXrayScan }},
+          watches="${{ inputs.watches }}",
+          xrayLog=${{ inputs.xrayLog }},
+          gitPatToken=${{ inputs.gitPatToken }},
+          aproPassword=${{ inputs.aproPassword }},
+          kanikoConfigJson=${{ inputs.kanikoConfigJson }}
+    
+        requiredInputs: >-
+          gitUserName,
+          aproUserName,
+          imageUrls,
+          dockerfilePath,
+          dockerfileTestPath,
+          gitPatToken,
+          aproPassword,
+          kanikoConfigJson
+    
+        optionalInputs: >-
+          ignoredSeverities,
+          hadolintConfigPath,
+          buildPlatform,
+          buildArgsFilePath,
+          kanikoVerbosity,
+          createDotNetRC,
+          runLint,
+          runGossTests,
+          runXrayScan,
+          watches,
+          xrayLog
+    
+        filesPathInputs: >-
+          hadolintConfigPath,
+          dockerfilePath,
+          dockerfileTestPath,
+          buildArgsFilePath
+    
+        typeValidations: >-
+          booleanString='createDotNetRC runLint runGossTests runXrayScan',
+          string='gitUserName aproUserName imageUrls dockerfilePath dockerfileTestPath gitPatToken aproPassword kanikoConfigJson hadolintConfigPath buildPlatform buildArgsFilePath watches xrayLog ignoredSeverities kanikoVerbosity'
+    
+        rangeValidations: >-
+          kanikoVerbosity=info debug warn error
