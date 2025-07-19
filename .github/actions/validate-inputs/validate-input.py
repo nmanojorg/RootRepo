@@ -2,53 +2,64 @@ import sys
 import os
 import pathlib
 
-# Error collector
+# Collects all validation error messages
 errors = []
 
+# Parses comma-separated key=value pairs into a dictionary
 def parse_kv_string(s):
     result = {}
     if s.strip() == '':
         return result
     for pair in s.split(','):
         if '=' not in pair:
-            errors.append(f"? Invalid key=value pair: '{pair}'")
+            errors.append(f"[ERROR] Invalid key=value pair: '{pair}'")
             continue
         k, v = pair.strip().split('=', 1)
         result[k.strip()] = v.strip()
     return result
 
+# Parses a comma-separated list into a list of non-empty trimmed values
 def parse_csv(s):
     return [i.strip() for i in s.split(',') if i.strip()]
 
+# Parses typeValidations in the format type=key1 key2,... into a key-to-type dictionary
 def parse_type_validation_grouped(s):
     result = {}
     if s.strip() == '':
         return result
     for pair in s.split(','):
         if '=' not in pair:
-            errors.append(f"? Invalid typeValidations format: '{pair}'")
+            errors.append(f"[ERROR] Invalid typeValidations format: '{pair}'")
             continue
         type_name, keys = pair.strip().split('=', 1)
-        for key in keys.strip().replace("'", "").replace('"', '').split():
+        for key in keys.replace("'", "").replace('"', '').split():
             result[key.strip()] = type_name.strip()
     return result
 
+# Parses rangeValidations in the format key=value1 value2,... into a dictionary
 def parse_range_validation(s):
     result = {}
     if s.strip() == '':
         return result
     for pair in s.split(','):
         if '=' not in pair:
-            errors.append(f"? Invalid rangeValidations format: '{pair}'")
+            errors.append(f"[ERROR] Invalid rangeValidations format: '{pair}'")
             continue
         key, values = pair.strip().split('=', 1)
         result[key.strip()] = values.strip().split()
     return result
 
-# === Start ===
-print("\n*** ?? Validation Started ***")
+def is_number_string(value):
+    try:
+        float(value)  # Try converting to float to allow integers and decimals
+        return True
+    except ValueError:
+        return False
 
-# Read inputs from environment
+# === Validation Starts ===
+print("\n*** [START] Validation Started ***")
+
+# Load inputs from environment variables
 inputs = parse_kv_string(os.environ.get('INPUT_ACTIONINPUTS', ''))
 required = parse_csv(os.environ.get('INPUT_REQUIREDINPUTS', ''))
 optional = parse_csv(os.environ.get('INPUT_OPTIONALINPUTS', ''))
@@ -56,52 +67,56 @@ file_keys = parse_csv(os.environ.get('INPUT_FILESPATHINPUTS', ''))
 type_validation = parse_type_validation_grouped(os.environ.get('INPUT_TYPEVALIDATIONS', ''))
 range_validation = parse_range_validation(os.environ.get('INPUT_RANGEVALIDATIONS', ''))
 
-# Validate required keys
+# Check that all required inputs exist and are non-empty
 for key in required:
-    if key not in inputs or inputs[key] == '':
-        errors.append(f"? Missing or empty required input: '{key}'")
+    if key not in inputs or inputs[key].strip() == '':
+        errors.append(f"[ERROR] Missing or empty required input: '{key}'")
 
-# Validate file path existence
+# Check that all specified file path inputs exist in the filesystem
 for key in file_keys:
-    if key not in inputs:
-        errors.append(f"? File validation failed: '{key}' not found in actionInputs")
-    else:
-        file_path = inputs[key]
-        if not pathlib.Path(file_path).exists():
-            errors.append(f"? File not found for key '{key}': {file_path}")
+    value = inputs.get(key, '').strip()
 
-# Type validation
+    # If required: must exist and not be empty
+    if key in required:
+        if not value:
+            errors.append(f"[ERROR] Required file input '{key}' is empty or missing")
+        elif not pathlib.Path(value).exists():
+            errors.append(f"[ERROR] Required file not found for key '{key}': {value}")
+    else: # Optional: only validate if value is non-empty
+        if value and not pathlib.Path(value).exists():
+            errors.append(f"[ERROR] Optional file not found for key '{key}': {value}")
+
+
+# Validate types of inputs based on declared expectations
 for key, expected_type in type_validation.items():
     if key not in inputs:
-        errors.append(f"? Type check failed: '{key}' not found in actionInputs")
+        errors.append(f"[ERROR] Type check failed: '{key}' not found in actionInputs")
         continue
     value = inputs[key]
     if expected_type == 'string':
-        pass
-    elif expected_type == 'booleanString':
-        if value.lower() not in ['true', 'false']:
-            errors.append(f"? Invalid booleanString for '{key}': '{value}' (expected 'true' or 'false')")
-    elif expected_type == 'booleanNumber':
-        if value not in ['0', '1']:
-            errors.append(f"? Invalid booleanNumber for '{key}': '{value}' (expected '0' or '1')")
-    else:
-        errors.append(f"? Unknown expected type '{expected_type}' for key '{key}'")
+        continue
+    if expected_type == 'booleanString' and value.lower() not in ['true', 'false']:
+        errors.append(f"[ERROR] Invalid booleanString for '{key}': '{value}' (expected 'true' or 'false')")
+    if expected_type == 'numberString' and not is_number_string(value):
+        errors.append(f"[ERROR] Invalid numberString for '{key}': '{value}' (expected any numeric string)")
+    if expected_type not in ['string', 'booleanString', 'numberString']:
+        errors.append(f"[ERROR] Unknown type '{expected_type}' for key '{key}'")
 
-# Range validation
+# Validate value of each input against its allowed range
 for key, allowed_values in range_validation.items():
     if key not in inputs:
-        errors.append(f"? Range validation failed: key '{key}' not found in actionInputs")
+        errors.append(f"[ERROR] Range validation failed: '{key}' not found in actionInputs")
         continue
     if inputs[key] not in allowed_values:
-        errors.append(f"? Invalid value for '{key}': '{inputs[key]}'. Allowed values: {allowed_values}")
+        errors.append(f"[ERROR] Invalid value for '{key}': '{inputs[key]}'. Allowed values: {allowed_values}")
 
-# Final result
+# Final validation result
 if errors:
-    print("\n?? Validation failed with the following issues:")
+    print("\n[FAIL] Validation failed with the following issues:")
     for err in errors:
         print(f"  - {err}")
-    print("\n*** ? Validation Ended with Errors ***\n")
+    print("\n*** [END] Validation Ended with Errors ***\n")
     sys.exit(1)
 else:
-    print("? All validations passed.")
-    print("\n*** ? Validation Ended Successfully ***\n")
+    print("[OK] All validations passed.")
+    print("\n*** [END] Validation Ended Successfully ***\n")

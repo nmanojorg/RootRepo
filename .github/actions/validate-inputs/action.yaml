@@ -24,7 +24,7 @@ inputs:
   typeValidations:
     description: >
       Comma-separated type=space-separated-keys map. 
-      Supported types: string, booleanString, booleanNumber
+      Supported types: string, booleanString, numberString
       Example: "booleanString='debug test',string=env"
     required: false
     default: ''
