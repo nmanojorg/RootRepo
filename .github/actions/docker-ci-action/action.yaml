@@ -83,7 +83,7 @@ runs:
          path: shared-library
 
     - name: Validate Inputs
-      uses: ./.github/actions/validate-inputs
+      uses: ./shared-library/.github/actions/validate-inputs
       with:
         actionInputs: >-
           gitUserName=${{ inputs.gitUserName }},
