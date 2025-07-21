@@ -77,7 +77,7 @@ runs:
     - name: Debug
       shell: bash
       run: |
-           var1=${{ inputs.gitUserName }}
+           var1=${{ inputs.aproUserName }}
            if [ -z "$var1" ]; then
              echo "var1 is null (unset), treated as empty"
            else
