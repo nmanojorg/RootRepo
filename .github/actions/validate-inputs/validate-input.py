@@ -105,17 +105,23 @@ for key in space_separated_keys:
 
 # Validate types of inputs based on declared expectations
 for key, expected_type in type_validation.items():
-    if key not in inputs:
-        errors.append(f"[ERROR] Type check failed: '{key}' not found in actionInputs")
+    value = inputs.get(key, '').strip()
+
+    if key not in required and key not in optional:
         continue
-    value = inputs[key]
+
+    if key in optional and value == '':
+        continue
+
     if expected_type == 'string':
         continue
-    if expected_type == 'booleanString' and value.lower() not in ['true', 'false']:
-        errors.append(f"[ERROR] Invalid booleanString for '{key}': '{value}' (expected 'true' or 'false')")
-    if expected_type == 'numberString' and not is_number_string(value):
-        errors.append(f"[ERROR] Invalid numberString for '{key}': '{value}' (expected any numeric string)")
-    if expected_type not in ['string', 'booleanString', 'numberString']:
+    elif expected_type == 'booleanString':
+        if value.lower() not in ['true', 'false']:
+            errors.append(f"[ERROR] Invalid booleanString for '{key}': '{value}' (expected 'true' or 'false')")
+    elif expected_type == 'numberString':
+        if not is_number_string(value):
+            errors.append(f"[ERROR] Invalid numberString for '{key}': '{value}' (expected any numeric string)")
+    else:
         errors.append(f"[ERROR] Unknown type '{expected_type}' for key '{key}'")
 
 # Validate value of each input against its allowed range
