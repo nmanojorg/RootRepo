@@ -37,13 +37,18 @@ inputs:
     required: false
     default: ''
 
+  spaceSeparatedInputs:
+    description: 'Space-separated list of keys whose values must be space-separated (e.g., "tags options")'
+    required: false
+    default: ''
+
 runs:
   using: "composite"
   steps:
     - name: Run validation script
       shell: bash
       run: |
-        echo "?? Running validate-input.py..."
+        echo "? Running validate-input.py..."
         python3 "./shared-library/.github/actions/validate-inputs/validate-input.py"
       env:
         INPUT_ACTIONINPUTS: ${{ inputs.actionInputs }}
@@ -52,3 +57,4 @@ runs:
         INPUT_FILESPATHINPUTS: ${{ inputs.filesPathInputs }}
         INPUT_TYPEVALIDATIONS: ${{ inputs.typeValidations }}
         INPUT_RANGEVALIDATIONS: ${{ inputs.rangeValidations }}
+        INPUT_SPACESEPARATEDINPUTS: ${{ inputs.spaceSeparatedInputs }}

@@ -51,12 +51,11 @@ def parse_range_validation(s):
 
 def is_number_string(value):
     try:
-        float(value)  # Try converting to float to allow integers and decimals
+        float(value)
         return True
     except ValueError:
         return False
 
-# === Validation Starts ===
 print("\n*** [START] Validation Started ***")
 
 # Load inputs from environment variables
