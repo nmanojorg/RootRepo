@@ -126,11 +126,21 @@ for key, expected_type in type_validation.items():
 
 # Validate value of each input against its allowed range
 for key, allowed_values in range_validation.items():
-    if key not in inputs:
-        errors.append(f"[ERROR] Range validation failed: '{key}' not found in actionInputs")
+    value = inputs.get(key, '').strip()
+
+    if key not in required and key not in optional:
         continue
-    if inputs[key] not in allowed_values:
-        errors.append(f"[ERROR] Invalid value for '{key}': '{inputs[key]}'. Allowed values: {allowed_values}")
+
+    if key in required:
+        if value == '':
+            errors.append(f"[ERROR] Missing or empty required input for range validation: '{key}'")
+            continue
+        if value not in allowed_values:
+            errors.append(f"[ERROR] Invalid value for required input '{key}': '{value}'. Allowed values: {allowed_values}")
+
+    elif key in optional:
+        if value != '' and value not in allowed_values:
+            errors.append(f"[ERROR] Invalid value for optional input '{key}': '{value}'. Allowed values: {allowed_values}")
 
 
 # Final validation result
