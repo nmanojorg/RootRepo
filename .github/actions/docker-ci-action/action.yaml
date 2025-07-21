@@ -141,3 +141,5 @@ runs:
     
         rangeValidations: >-
           kanikoVerbosity=info debug warn error
+
+        spaceSeparatedInputs: imageUrls,ignoredSeverities
