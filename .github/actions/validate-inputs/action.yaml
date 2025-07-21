@@ -48,7 +48,7 @@ runs:
     - name: Run validation script
       shell: bash
       run: |
-        echo "? Running validate-input.py..."
+        echo "Running validate-input script"
         python3 "./shared-library/.github/actions/validate-inputs/validate-input.py"
       env:
         INPUT_ACTIONINPUTS: ${{ inputs.actionInputs }}

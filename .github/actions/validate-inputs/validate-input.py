@@ -12,7 +12,7 @@ def parse_kv_string(s):
         return result
     for pair in s.split(','):
         if '=' not in pair:
-            errors.append(f"[ERROR] Invalid key=value pair: '{pair}'")
+            errors.append(f"? Invalid key=value pair: '{pair}'")
             continue
         k, v = pair.strip().split('=', 1)
         result[k.strip()] = v.strip()
@@ -29,7 +29,7 @@ def parse_type_validation_grouped(s):
         return result
     for pair in s.split(','):
         if '=' not in pair:
-            errors.append(f"[ERROR] Invalid typeValidations format: '{pair}'")
+            errors.append(f"? Invalid typeValidations format: '{pair}'")
             continue
         type_name, keys = pair.strip().split('=', 1)
         for key in keys.replace("'", "").replace('"', '').split():
@@ -43,7 +43,7 @@ def parse_range_validation(s):
         return result
     for pair in s.split(','):
         if '=' not in pair:
-            errors.append(f"[ERROR] Invalid rangeValidations format: '{pair}'")
+            errors.append(f"? Invalid rangeValidations format: '{pair}'")
             continue
         key, values = pair.strip().split('=', 1)
         result[key.strip()] = values.strip().split()
@@ -56,7 +56,7 @@ def is_number_string(value):
     except ValueError:
         return False
 
-print("\n*** [START] Validation Started ***")
+print("\n?? *** [START] Validation Started ***")
 
 # Load inputs from environment variables
 inputs = parse_kv_string(os.environ.get('INPUT_ACTIONINPUTS', ''))
@@ -67,40 +67,45 @@ type_validation = parse_type_validation_grouped(os.environ.get('INPUT_TYPEVALIDA
 range_validation = parse_range_validation(os.environ.get('INPUT_RANGEVALIDATIONS', ''))
 space_separated_keys = os.environ.get('INPUT_SPACESEPARATEDINPUTS', '').split()
 
+print(inputs)
+print(required)
+print(optional)
+print(file_keys)
+print(type_validation)
+print(range_validation)
+print(space_separated_keys)
+
+
 # Check that all required inputs exist and are non-empty
 for key in required:
     if key not in inputs or inputs[key].strip() == '':
-        errors.append(f"[ERROR] Missing or empty required input: '{key}'")
+        errors.append(f"? Missing or empty required input: '{key}'")
 
 # Check that all specified file path inputs exist in the filesystem
 for key in file_keys:
     value = inputs.get(key, '').strip()
 
-    # If required: must exist and not be empty
     if key in required:
         if not value:
-            errors.append(f"[ERROR] Required file input '{key}' is empty or missing")
+            errors.append(f"? Required file input '{key}' is empty or missing")
         elif not pathlib.Path(value).exists():
-            errors.append(f"[ERROR] Required file not found for key '{key}': {value}")
-    else:  # Optional: only validate if value is non-empty
+            errors.append(f"? Required file not found for key '{key}': {value}")
+    else:
         if value and not pathlib.Path(value).exists():
-            errors.append(f"[ERROR] Optional file not found for key '{key}': {value}")
+            errors.append(f"? Optional file not found for key '{key}': {value}")
 
 # Validate that certain inputs have space-separated values
 for key in space_separated_keys:
     value = inputs.get(key, '').strip()
 
-    # If required, value must exist and be space-separated
     if key in required:
         if not value:
-            errors.append(f"[ERROR] Required input '{key}' is empty or missing for space-separated check")
+            errors.append(f"? Required input '{key}' is empty or missing for space-separated check")
         elif len(value.split()) < 2:
-            errors.append(f"[ERROR] Value for required input '{key}' is not space-separated: '{value}'")
-
-    # If optional, only check if value is provided
+            errors.append(f"? Value for required input '{key}' is not space-separated: '{value}'")
     elif key in optional and value:
         if len(value.split()) < 2:
-            errors.append(f"[ERROR] Value for optional input '{key}' is not space-separated: '{value}'")
+            errors.append(f"? Value for optional input '{key}' is not space-separated: '{value}'")
 
 # Validate types of inputs based on declared expectations
 for key, expected_type in type_validation.items():
@@ -108,7 +113,6 @@ for key, expected_type in type_validation.items():
 
     if key not in required and key not in optional:
         continue
-
     if key in optional and value == '':
         continue
 
@@ -116,12 +120,12 @@ for key, expected_type in type_validation.items():
         continue
     elif expected_type == 'booleanString':
         if value.lower() not in ['true', 'false']:
-            errors.append(f"[ERROR] Invalid booleanString for '{key}': '{value}' (expected 'true' or 'false')")
+            errors.append(f"? Invalid booleanString for '{key}': '{value}' (expected 'true' or 'false')")
     elif expected_type == 'numberString':
         if not is_number_string(value):
-            errors.append(f"[ERROR] Invalid numberString for '{key}': '{value}' (expected any numeric string)")
+            errors.append(f"? Invalid numberString for '{key}': '{value}' (expected any numeric string)")
     else:
-        errors.append(f"[ERROR] Unknown type '{expected_type}' for key '{key}'")
+        errors.append(f"? Unknown type '{expected_type}' for key '{key}'")
 
 # Validate value of each input against its allowed range
 for key, allowed_values in range_validation.items():
@@ -132,23 +136,21 @@ for key, allowed_values in range_validation.items():
 
     if key in required:
         if value == '':
-            errors.append(f"[ERROR] Missing or empty required input for range validation: '{key}'")
+            errors.append(f"? Missing or empty required input for range validation: '{key}'")
             continue
         if value not in allowed_values:
-            errors.append(f"[ERROR] Invalid value for required input '{key}': '{value}'. Allowed values: {allowed_values}")
-
+            errors.append(f"? Invalid value for required input '{key}': '{value}'. Allowed values: {allowed_values}")
     elif key in optional:
         if value != '' and value not in allowed_values:
-            errors.append(f"[ERROR] Invalid value for optional input '{key}': '{value}'. Allowed values: {allowed_values}")
-
+            errors.append(f"? Invalid value for optional input '{key}': '{value}'. Allowed values: {allowed_values}")
 
 # Final validation result
 if errors:
-    print("\n[FAIL] Validation failed with the following issues:")
+    print("\n?? Validation failed with the following issues:")
     for err in errors:
         print(f"  - {err}")
-    print("\n*** [END] Validation Ended with Errors ***\n")
+    print("\n? *** [END] Validation Ended with Errors ***\n")
     sys.exit(1)
 else:
-    print("[OK] All validations passed.")
-    print("\n*** [END] Validation Ended Successfully ***\n")
+    print("? All validations passed.")
+    print("\n?? *** [END] Validation Ended Successfully ***\n")
