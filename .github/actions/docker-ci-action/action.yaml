@@ -76,4 +76,16 @@ runs:
 
     - name: Debug
       shell: bash
-      run: echo ${{ inputs.gitUserName }}
+      run: |
+           var1=${{ inputs.gitUserName }}
+           if [ -z "$var1" ]; then
+             echo "var1 is null (unset), treated as empty"
+           else
+             echo "var1 is NOT empty"
+           fi
+           
+           if [ -v var1 ]; then
+             echo "var1 is SET"
+           else
+             echo "var1 is NOT SET"
+           fi
