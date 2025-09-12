@@ -11,6 +11,7 @@ runs:
       shell: bash
       run: bash ${{ github.action_path }}/b.sh
     - name: Show action commit
+      shell: bash
       run: |
          cd "$GITHUB_ACTION_PATH"
          git rev-parse HEAD
