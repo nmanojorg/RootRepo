@@ -12,8 +12,8 @@ runs:
       run: bash ${{ github.action_path }}/b.sh
     - name: Show action commit
       shell: bash
+      env:
+        TEST: "${{ github.action_ref }}"
       run: |
-         echo "${{ github.action_ref }}"
-         cd "$GITHUB_ACTION_PATH"
-         git rev-parse HEAD
-         git show -s --pretty=%D HEAD
+         env
+         
