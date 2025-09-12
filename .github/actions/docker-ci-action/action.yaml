@@ -10,3 +10,8 @@ runs:
     - name: Sleep
       shell: bash
       run: bash ${{ github.action_path }}/b.sh
+    - name: Show action commit
+      run: |
+         cd "$GITHUB_ACTION_PATH"
+         git rev-parse HEAD
+         git show -s --pretty=%D HEAD
