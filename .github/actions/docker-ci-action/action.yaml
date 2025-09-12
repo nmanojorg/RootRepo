@@ -13,6 +13,7 @@ runs:
     - name: Show action commit
       shell: bash
       run: |
+         echo "${{ github.action_ref }}"
          cd "$GITHUB_ACTION_PATH"
          git rev-parse HEAD
          git show -s --pretty=%D HEAD
