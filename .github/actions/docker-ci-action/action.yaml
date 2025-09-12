@@ -9,4 +9,4 @@ runs:
         echo "${{ github.action_path }}" && ls -ltr "${{ github.action_path }}"
     - name: Sleep
       shell: bash
-      run: .${{ github.action_path }}/b.sh
+      run: bash ${{ github.action_path }}/b.sh
