@@ -1,25 +1,11 @@
-name: Conditional Job Workflow
+name: Simple Reusable Workflow
 
 on:
-  push:
   workflow_call:
-    inputs:
-      runJob1:
-        type: boolean
-        required: true
-      runJob3:
-        type: boolean
-        required: true
-      runJob4:
-        type: boolean
-        required: true
+
 jobs:
-  job1:
-    name: Always Run Job 2
+  say-hello:
     runs-on: ubuntu-latest
     steps:
-      - run: | 
-             echo "Running Job 2"
-             echo "$REPO_NAME"
-
-  
+      - name: Say Hello
+        run: echo "Hello from the reusable workflow!"
