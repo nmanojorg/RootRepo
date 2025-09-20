@@ -11,4 +11,4 @@ runs:
         cd "${{ github.action_path }}"
         cat "${{ github.action_path }}"/../common.properties
     - name: Debug
-      uses: ./github/actions/validate-inputs
+      uses: "${{ github.action_path }}"/../validate-inputs
