@@ -6,14 +6,9 @@ runs:
     - name: Debug
       shell: bash
       run: |
-        echo "${{ github.action_path }}" && ls -ltr "${{ github.action_path }}"
-    - name: Sleep
-      shell: bash
-      run: bash ${{ github.action_path }}/b.sh
-    - name: Show action commit
-      shell: bash
-      env:
-        TEST: "${{ github.action_ref }}"
-      run: |
-         env
-         
+        echo "${{ github.action_path }}"
+        ls -ltr "${{ github.action_path }}"
+        cd "${{ github.action_path }}"
+        ls -ltr "${{ github.action_path }}"/..
+        ls -ltr "${{ github.action_path }}"/../..
+    
