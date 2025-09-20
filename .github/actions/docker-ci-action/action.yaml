@@ -10,6 +10,5 @@ runs:
         ls -ltr "${{ github.action_path }}"
         cd "${{ github.action_path }}"
         cat "${{ github.action_path }}"/../common.properties
-        env
-        
-    
+    - name: Debug
+      uses: ../lint/validate-inputs

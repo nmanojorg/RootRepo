@@ -1,46 +1,7 @@
 name: Validate Inputs
 description: Validates GitHub Action inputs with required checks, type checks, file existence, and range validations.
 
-inputs:
-  actionInputs:
-    description: 'Comma-separated key=value pairs (e.g., "env=dev,debug=true,test=false")'
-    required: true
 
-  requiredInputs:
-    description: 'Comma-separated list of keys that must be present in actionInputs and non-empty (e.g., "env,test")'
-    required: true
-    default: ''
-
-  optionalInputs:
-    description: 'Comma-separated list of optional keys (e.g., "debug")'
-    required: false
-    default: ''
-
-  filesPathInputs:
-    description: 'Comma-separated list of keys whose values (from actionInputs) are expected to be valid file paths (e.g., "env,config")'
-    required: false
-    default: ''
-
-  typeValidations:
-    description: >
-      Comma-separated type=space-separated-keys map. 
-      Supported types: string, booleanString, numberString
-      Example: "booleanString='debug test',string=env"
-    required: false
-    default: ''
-
-  rangeValidations:
-    description: >
-      Comma-separated key=space-separated-values map.
-      Validates that the input value is within the allowed values.
-      Example: "env=dev test prod"
-    required: false
-    default: ''
-
-  spaceSeparatedInputs:
-    description: 'Space-separated list of keys whose values must be space-separated (e.g., "tags options")'
-    required: false
-    default: ''
 
 runs:
   using: "composite"
@@ -49,12 +10,4 @@ runs:
       shell: bash
       run: |
         echo "Running validate-input script"
-        python3 "./shared-library/.github/actions/validate-inputs/validate-input.py"
-      env:
-        INPUT_ACTIONINPUTS: ${{ inputs.actionInputs }}
-        INPUT_REQUIREDINPUTS: ${{ inputs.requiredInputs }}
-        INPUT_OPTIONALINPUTS: ${{ inputs.optionalInputs }}
-        INPUT_FILESPATHINPUTS: ${{ inputs.filesPathInputs }}
-        INPUT_TYPEVALIDATIONS: ${{ inputs.typeValidations }}
-        INPUT_RANGEVALIDATIONS: ${{ inputs.rangeValidations }}
-        INPUT_SPACESEPARATEDINPUTS: ${{ inputs.spaceSeparatedInputs }}
+        env
