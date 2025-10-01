@@ -10,8 +10,5 @@ jobs:
       - name: Check if TEST is set
         run: |
              env
-             if [[ -n "$TEST" ]]; then
-                echo "TEST variable is set"
-             else
-                echo "TEST variable is NOT set"
-             fi
+             pwd
+             ls -ltr
