@@ -4,6 +4,9 @@ on:
       GENERIC_YAML_SECRET:
         required: true
 
+env:
+  b: 1
+
 jobs:
   set-secrets-env:
     runs-on: ubuntu-latest
