@@ -10,31 +10,27 @@ jobs:
   say-hello:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if TEST is set
+      - name: Install yq
         run: |
-          env
-          pwd
-          ls -ltr
-          echo "${{ github.workflow }}"
-          echo "${{ github.workflow_ref }}"
-      - name: Import secrets as env vars
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+      - name: Import secrets as env vars (YAML)
         shell: bash
         run: |
-          json="${{ secrets.GENERIC_JSON_SECRET }}"
-          echo $json
-          if [ -n "$json" ]; then
-            if echo "$json" | jq empty; then
-              jq -r 'to_entries[] | "\(.key)=\(.value)"' <<< "$json" | while IFS= read -r line; do
-                value="${line#*=}"
-                echo "::add-mask::$value"
-                echo "$line" >> $GITHUB_ENV
-              done
-            else
-              echo "GENERIC_JSON_SECRET is not valid JSON"
-            fi
+          yaml="${{ secrets.GENERIC_YAML_SECRET }}"
+          echo "$yaml"
+          if [ -n "$yaml" ]; then
+            echo "$yaml" > temp.yaml
+            yq eval 'to_entries | .[] | "\(.key)=\(.value)"' temp.yaml | while IFS= read -r line; do
+              value="${line#*=}"
+              echo "::add-mask::$value"
+              echo "$line" >> $GITHUB_ENV
+            done
           else
-            echo "GENERIC_JSON_SECRET is empty or not set"
+            echo "GENERIC_YAML_SECRET is empty or not set"
           fi
+
       - name: debug
         shell: bash
         run: |
