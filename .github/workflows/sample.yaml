@@ -8,43 +8,6 @@ jobs:
   set-secrets-env:
     runs-on: ubuntu-latest
     steps:
-      - id: share_lib
-        if: false  # step will be skipped
-        run: echo "This never runs"
-
-      - run: echo "Share lib outcome- ${{ steps.share_lib.outcome }}"
-      
-      - name: Parse GENERIC_YAML_SECRET and set as env vars
-        shell: bash
-        run: |
-          # Read each key: value from YAML secret (ignoring comments and empty lines)
-          while IFS=: read -r key value; do
-            key="$(echo "$key" | xargs)"       # Trim whitespace
-            value="$(echo "$value" | xargs)"   # Trim whitespace
-            [[ -z "$key" || "$key" =~ ^# ]] && continue
-            [[ -z "$value" ]] && continue
-            key_upper="$(echo "$key" | tr '[:lower:]' '[:upper:]')"
-            echo "::add-mask::$value"
-            echo "$key_upper=$value" >> $GITHUB_ENV
-          done <<< "${{ secrets.GENERIC_YAML_SECRET }}"
-
-      - name: Show set environment variables
-        env:
-         ACTION_PATH: "${{ github.action_path }}"
-         ACTION_REF: "${{ github.action_ref }}"
-         ACTION_REPO: "${{ github.action_repository }}"
-        run: |
-          echo "SECRET_1: $SECRET_1"
-          echo "SECRET_2: $SECRET_2"
-          echo "::debug::Set the Octocat variable"
-          echo "::notice::Missing semicolon"
-          echo "::warning::Missing semicolon"
-          echo "::error::Missing semicolon"
-          echo "${{ github.workflow }}"
-          echo "${{ github.workflow_ref }}"
-          echo "${{ github.workflow_sha }}"
-          echo "${{ env.ACTION_PATH }}"
-          echo "${{ env.ACTION_REF }}"
-          echo "${{ env.ACTION_REPO }}"
-          
+       - shell: bash
+         run: printenv
 
