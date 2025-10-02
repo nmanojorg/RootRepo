@@ -30,4 +30,7 @@ jobs:
           echo "::notice::Missing semicolon"
           echo "::warning::Missing semicolon"
           echo "::error::Missing semicolon"
+          echo "${{ github.workflow }}"
+          echo "${{ github.workflow_ref }}"
+          echo "${{ github.workflow_sha }}"
 
