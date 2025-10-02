@@ -27,5 +27,7 @@ jobs:
           echo "SECRET_1: $SECRET_1"
           echo "SECRET_2: $SECRET_2"
           echo "::debug::Set the Octocat variable"
-          echo "::notice file=app.js,line=1,col=5,endColumn=7::Missing semicolon"
+          echo "::notice::Missing semicolon"
+          echo "::warning::Missing semicolon"
+          echo "::error::Missing semicolon"
 
