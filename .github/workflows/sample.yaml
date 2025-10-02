@@ -23,7 +23,7 @@ jobs:
         run: |
           json='${{ secrets.GENERIC_JSON_SECRET }}'
           if [ "$json" != "" ]; then
-            echo "$json" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
+            echo "$json" | jq -r 'to_entries[] | "::add-mask::\(.key)=\(.value)"' >> $GITHUB_ENV
           fi
       - name: debug
         shell: bash
