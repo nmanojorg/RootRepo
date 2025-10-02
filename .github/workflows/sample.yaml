@@ -12,3 +12,5 @@ jobs:
              env
              pwd
              ls -ltr
+             echo "${{ github.workflow }}"
+             echo "${{ github.workflow_ref }}"
