@@ -23,5 +23,5 @@ jobs:
       - shell: bash
         run: printenv
 
-      - uses:  ./cicd-shared-lib/.github/actions/docker-ci
+      - uses: ./cicd-shared-lib/.github/actions/docker-ci-action
 
