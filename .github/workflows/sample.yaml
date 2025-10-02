@@ -25,3 +25,6 @@ jobs:
           if [ "$json" != "" ]; then
             echo "$json" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
           fi
+      - name: debug
+        shell: bash
+        run:  echo "${{ env.secret_1 }}"; echo "${{ env.secret_2 }}"
