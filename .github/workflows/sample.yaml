@@ -23,6 +23,10 @@ jobs:
           done <<< "${{ secrets.GENERIC_YAML_SECRET }}"
 
       - name: Show set environment variables
+        env:
+         ACTION_PATH: "${{ github.action_path }}"
+         ACTION_REF: "${{ github.action_ref }}"
+         ACTION_REPO: "${{ github.action_repository }}"
         run: |
           echo "SECRET_1: $SECRET_1"
           echo "SECRET_2: $SECRET_2"
@@ -31,6 +35,8 @@ jobs:
           echo "::warning::Missing semicolon"
           echo "::error::Missing semicolon"
           echo "${{ github.workflow }}"
-          echo "${{ github.workflow_ref }}"
-          echo "${{ github.workflow_sha }}"
+          echo "${{ env.ACTION_PATH }}"
+          echo "${{ env.ACTION_REF }}"
+          echo "${{ env.ACTION_REPO }}"
+          
 
