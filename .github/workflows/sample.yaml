@@ -1,8 +1,8 @@
-name: Sample Workflow to Set Secrets as Env Vars
-
 on:
-  workflow_dispatch:
-  push:
+  workflow_call:
+    secrets:
+      GENERIC_YAML_SECRET:
+        required: true
 
 jobs:
   set-secrets-env:
