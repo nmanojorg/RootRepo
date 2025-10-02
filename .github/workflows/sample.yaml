@@ -3,7 +3,7 @@ name: Simple Reusable Workflow
 on:
   workflow_call:
     secrets:
-      GENERIC_JSON_SECRET:
+      GENERIC_YAML_SECRET:
         required: false
 
 jobs:
