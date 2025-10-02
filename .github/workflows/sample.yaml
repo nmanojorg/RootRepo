@@ -17,5 +17,7 @@ jobs:
          run: printenv
 
        - shell: bash
-         run: echo "${{ github.env }}"
+         run: | 
+              echo "${{ github.env }}"
+              echo "$GITHUB_ENV"
 
