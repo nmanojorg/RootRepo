@@ -15,6 +15,7 @@ jobs:
             if [[ "$key" =~ ^[a-zA-Z0-9_]+$ ]] && [ -n "$value" ]; then
               key_upper=$(echo "$key" | tr '[:lower:]' '[:upper:]')
               echo "Setting $key_upper as env var"
+              echo "::add-mask::$value"
               echo "$key_upper=$value" >> $GITHUB_ENV
             fi
           done < <(grep -E '^[^ ]+:' secrets.yaml)
