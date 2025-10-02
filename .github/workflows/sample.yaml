@@ -16,3 +16,6 @@ jobs:
        - shell: bash
          run: printenv
 
+       - shell: bash
+         run: echo "${{ github.env }}"
+
