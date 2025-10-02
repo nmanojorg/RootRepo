@@ -23,8 +23,10 @@ jobs:
           if [ -n "$yaml" ]; then
             echo "$yaml" > temp.yaml
             yq eval 'to_entries | .[] | "\(.key)=\(.value)"' temp.yaml | while IFS= read -r line; do
+              echo $line
               value="${line#*=}"
               echo "::add-mask::$value"
+              echo $line
               echo "$line" >> $GITHUB_ENV
             done
           else
