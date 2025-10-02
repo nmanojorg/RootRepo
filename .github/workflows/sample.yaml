@@ -18,7 +18,7 @@ jobs:
       - name: Import secrets as env vars (YAML)
         shell: bash
         run: |
-          echo "${{ secrets.GENERIC_YAML_SECRET }}" | yq eval 'to_entries | .[] | "\(.key)=\(.value)"' - >> $GITHUB_ENV
+            echo "${{ secrets.GENERIC_YAML_SECRET }}" | yq eval '. as $in | to_entries[] | "\(.key): \(.value)"' -
 
       - name: debug
         shell: bash
