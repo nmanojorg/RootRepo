@@ -18,6 +18,5 @@ jobs:
 
        - shell: bash
          run: | 
-              echo "${{ github.env }}"
-              echo "$GITHUB_ENV"
+              cat "${{ github.env }}"
 
