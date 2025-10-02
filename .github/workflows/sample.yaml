@@ -18,5 +18,9 @@ jobs:
 
        - shell: bash
          run: | 
+              ls -ltr "${{ github.env }}"
               cat "${{ github.env }}"
+              printenv | grep "a="
+              printenv | grep "b="
+              printenv | grep "c="
 
