@@ -18,20 +18,7 @@ jobs:
       - name: Import secrets as env vars (YAML)
         shell: bash
         run: |
-          yaml="${{ secrets.GENERIC_YAML_SECRET }}"
-          echo "$yaml"
-          if [ -n "$yaml" ]; then
-            echo "$yaml" > temp.yaml
-            yq eval 'to_entries | .[] | "\(.key)=\(.value)"' temp.yaml | while IFS= read -r line; do
-              echo $line
-              value="${line#*=}"
-              echo "::add-mask::$value"
-              echo $line
-              echo "$line" >> $GITHUB_ENV
-            done
-          else
-            echo "GENERIC_YAML_SECRET is empty or not set"
-          fi
+          echo "${{ secrets.GENERIC_YAML_SECRET }}" | yq eval 'to_entries | .[] | "\(.key)=\(.value)"' - >> $GITHUB_ENV
 
       - name: debug
         shell: bash
