@@ -1,27 +1,24 @@
-name: Simple Reusable Workflow
+name: Sample Workflow to Set Secrets as Env Vars
 
 on:
-  workflow_call:
-    secrets:
-      GENERIC_YAML_SECRET:
-        required: false
+  workflow_dispatch:
+  push:
 
 jobs:
-  say-hello:
+  set-secrets-env:
     runs-on: ubuntu-latest
     steps:
-      - name: Install yq
+      - name: Parse GENERIC_YAML_SECRET and set as env vars
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64 -O /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
-
-      - name: Import secrets as env vars (YAML)
-        shell: bash
+          echo "${{ secrets.GENERIC_YAML_SECRET }}" > secrets.yaml
+          while IFS=": " read -r key value; do
+            if [[ "$key" =~ ^[a-zA-Z0-9_]+$ ]] && [ -n "$value" ]; then
+              key_upper=$(echo "$key" | tr '[:lower:]' '[:upper:]')
+              echo "Setting $key_upper as env var"
+              echo "$key_upper=$value" >> $GITHUB_ENV
+            fi
+          done < <(grep -E '^[^ ]+:' secrets.yaml)
+      - name: Show set environment variables
         run: |
-            echo "${{ secrets.GENERIC_YAML_SECRET }}" | yq eval 'to_entries | .[] | .key + ": " + (.value|tostring)' - | while read line; do echo "$line"; done -
-
-      - name: debug
-        shell: bash
-        run: |
-          echo "${{ env.secret_1 }}"
-          echo "${{ env.secret_2 }}"
+          echo "SECRET_1: $SECRET_1"
+          echo "SECRET_2: $SECRET_2"
