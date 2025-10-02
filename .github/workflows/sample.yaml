@@ -8,6 +8,12 @@ jobs:
   set-secrets-env:
     runs-on: ubuntu-latest
     steps:
+      - id: share_lib
+        if: false  # step will be skipped
+        run: echo "This never runs"
+
+      - run: echo "Share lib outcome- ${{ steps.share_lib.outcome }}"
+      
       - name: Parse GENERIC_YAML_SECRET and set as env vars
         shell: bash
         run: |
