@@ -9,16 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Parse GENERIC_YAML_SECRET and set as env vars
+        shell: bash
         run: |
-          echo "${{ secrets.GENERIC_YAML_SECRET }}" > secrets.yaml
-          while IFS=": " read -r key value; do
-            if [[ "$key" =~ ^[a-zA-Z0-9_]+$ ]] && [ -n "$value" ]; then
-              key_upper=$(echo "$key" | tr '[:lower:]' '[:upper:]')
-              echo "Setting $key_upper as env var"
-              echo "::add-mask::$value"
-              echo "$key_upper=$value" >> $GITHUB_ENV
-            fi
-          done < <(grep -E '^[^ ]+:' secrets.yaml)
+          # Read each key: value from YAML secret (ignoring comments and empty lines)
+          while IFS=: read -r key value; do
+            key="$(echo "$key" | xargs)"       # Trim whitespace
+            value="$(echo "$value" | xargs)"   # Trim whitespace
+            [[ -z "$key" || "$key" =~ ^# ]] && continue
+            [[ -z "$value" ]] && continue
+            key_upper="$(echo "$key" | tr '[:lower:]' '[:upper:]')"
+            echo "::add-mask::$value"
+            echo "$key_upper=$value" >> $GITHUB_ENV
+          done <<< "${{ secrets.GENERIC_YAML_SECRET }}"
+
       - name: Show set environment variables
         run: |
           echo "SECRET_1: $SECRET_1"
