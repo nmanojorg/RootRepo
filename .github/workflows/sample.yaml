@@ -1,7 +1,11 @@
 name: Simple Reusable Workflow
 
+
 on:
   workflow_call:
+    secrets:
+      GENERIC_JSON_SECRET:
+        required: false
 
 jobs:
   say-hello:
@@ -14,3 +18,10 @@ jobs:
              ls -ltr
              echo "${{ github.workflow }}"
              echo "${{ github.workflow_ref }}"
+      - name: Import secrets as env vars
+        shell: bash
+        run: |
+          json='${{ secrets.GENERIC_JSON_SECRET }}'
+          if [ "$json" != "" ]; then
+            echo "$json" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
+          fi
