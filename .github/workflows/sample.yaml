@@ -21,6 +21,7 @@ jobs:
         shell: bash
         run: |
           json="${{ secrets.GENERIC_JSON_SECRET }}"
+          echo $json
           if [ -n "$json" ]; then
             if echo "$json" | jq empty; then
               jq -r 'to_entries[] | "\(.key)=\(.value)"' <<< "$json" | while IFS= read -r line; do
