@@ -1,6 +1,5 @@
 name: Simple Reusable Workflow
 
-
 on:
   workflow_call:
     secrets:
@@ -13,18 +12,24 @@ jobs:
     steps:
       - name: Check if TEST is set
         run: |
-             env
-             pwd
-             ls -ltr
-             echo "${{ github.workflow }}"
-             echo "${{ github.workflow_ref }}"
+          env
+          pwd
+          ls -ltr
+          echo "${{ github.workflow }}"
+          echo "${{ github.workflow_ref }}"
       - name: Import secrets as env vars
         shell: bash
         run: |
-          json='${{ secrets.GENERIC_JSON_SECRET }}'
-          if [ "$json" != "" ]; then
-            echo "$json" | jq -r 'to_entries[] | "::add-mask::\(.key)=\(.value)"' >> $GITHUB_ENV
+          json="${{ secrets.GENERIC_JSON_SECRET }}"
+          if [ -n "$json" ]; then
+            jq -r 'to_entries[] | "\(.key)=\(.value)"' <<< "$json" | while IFS= read -r line; do
+              value="${line#*=}"
+              echo "::add-mask::$value"
+              echo "$line" >> $GITHUB_ENV
+            done
           fi
       - name: debug
         shell: bash
-        run:  echo "${{ env.secret_1 }}"; echo "${{ env.secret_2 }}"
+        run: |
+          echo "${{ env.secret_1 }}"
+          echo "${{ env.secret_2 }}"
