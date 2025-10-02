@@ -13,14 +13,15 @@ jobs:
       c: 1
     runs-on: ubuntu-latest
     steps:
-       - shell: bash
-         run: printenv
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: "nmanojorg/RootRepo"
+          ref: main
+          path: 'cicd-shared-lib'
+        
+      - shell: bash
+        run: printenv
 
-       - shell: bash
-         run: | 
-              ls -ltr "${{ github.env }}"
-              
-              printenv | grep "a="
-              printenv | grep "b="
-              printenv | grep "c="
+      - uses:  ./cicd-shared-lib/.github/actions/docker-ci
 
