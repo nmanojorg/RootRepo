@@ -1,29 +1,56 @@
 on:
   workflow_call:
-    secrets:
-      GENERIC_YAML_SECRET:
-        required: true
-
-env:
-  b: 1
+        
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   set-secrets-env:
-    env:
-      c: 1
     runs-on: ubuntu-latest
-    container:
-      image: ""
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          repository: "nmanojorg/RootRepo"
-          ref: main
-          path: 'cicd-shared-lib'
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+
+    # Shout out to Benjamin Pannell at Sierra Softworks for this
+    # https://sierrasoftworks.com/2021/12/20/vault-github-actions/#policies
+    - name: Troubleshooting
+      run: |
+          export AUDIENCE="manoj"  #"https://github.com/${GITHUB_REPOSITORY}"
+          echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN
+          echo $ACTIONS_ID_TOKEN_REQUEST_URL
+          curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$AUDIENCE" | \
+          jq "{ jwt: .value, role: \"$VAULT_ROLE\" }" > ./token.json
+            
+          echo 'GitHub Actions Token Claims'
+          cat ./token.json
+          cat ./token.json | jq -r '.jwt | split(".") | .[1] | @base64d' | jq
+          echo 'Vault Login Response'
+          curl -sSLf -X POST -H "Content-Type: application/json" -H "X-Vault-Namespace: admin" --data @token.json $VAULT_URL/v1/auth/$VAULT_AUTH_PATH/login
+          # Remove the token file when we're done (if we don't fail)
+          rm ./token.json
+      env:
+        VAULT_URL: http://3.109.208.8:8200
+        VAULT_AUTH_PATH: jwt
+        VAULT_ROLE: github-actions
+        ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+
+    - name: Retrieve Secrets
+      id: secretdata
+      uses: hashicorp/vault-action@v2.4.0
+      with: 
+        method: jwt
+        url: http://3.109.208.8:8200
+        namespace: admin
+        role: github-actions
+        jwtGithubAudience: manoj
+        secrets: secret/data/test a | MY_SECRET
         
-      - shell: bash
-        run: printenv
 
-      - uses: ./cicd-shared-lib/.github/actions/docker-ci-action
-
+    - name: Print Secrets
+      run: |
+          echo '${{ steps.secretdata.outputs.MY_SECRET }}'
