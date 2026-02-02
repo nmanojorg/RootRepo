@@ -6,6 +6,8 @@ permissions:
   id-token: write
   contents: read
 
+  
+
 jobs:
   set-secrets-env:
     runs-on: ubuntu-latest
